@@ -2,74 +2,82 @@ const usersControllers = require('./users.controllers')
 
 
 const getAllUsers = (req, res) => {
-    const data = usersControllers.findAllUsers()
-    res.status(200).json(data)
+    usersControllers.findAllUsers()
+        .then((data)=>{
+            res.status(200).json(data)
+        })
+        .catch((error)=>{
+            res.status(400).json({message: error.message})
+        })
+    
 }
 
 const getUserById = (req, res) => {
     const id = req.params.id
-    const data = usersControllers.findUserById(id)
-    if (data) {
-        res.status(200).json(data)
-    }
-    else {
-        res.status(404).json({ message: 'Invalid ID' })
-    }
+    usersControllers.findUserById(id)
+        .then((data)=>{
+            if (data) {
+                res.status(200).json(data)
+            }
+            else {
+                res.status(404).json({ message: 'Invalid ID' })
+            }
+        })
+        .catch((error)=>{
+            res.status(400).json({message: error.message})
+        })
+    
 }
 
 const postUser = (req, res) => {
     const { first_name, last_name, email, password, birthday } = req.body
 
-    if (first_name && last_name && email && password && birthday) {
-        const data = usersControllers.createUser({ first_name, last_name, email, password, birthday })
-        res.status(200).json(data)
-    }
-    else {
-        res.status(400).json({
-            message: 'Invalid Data',
-            fields: {
-                first_name: 'String',
-                last_name: 'String',
-                email: 'String',
-                password: 'String',
-                birthday: 'String'
-            }
+    usersControllers.createUser({ first_name, last_name, email, password, birthday })
+        .then((data)=>{
+            res.status(201).json(data)
         })
-    }
+        .catch((error)=>{
+            res.status(400).json({message: error.message})
+        })
 }
 
 const putUser = (req, res) => {
-    const {id, first_name, last_name, email, password, birthday } = req.body
-    
+    const id = req.params.id
+    const {first_name,last_name,email,password,birthday} = req.body
 
-    if (first_name && last_name && email && password && birthday && id) {
-        const data = usersControllers.updateUser({id, first_name, last_name, email, password, birthday })
-        res.status(200).json(data)
-    }
-    else {
-        res.status(400).json({
-            message: 'Invalid Data',
-            fields: {
-                id: 'Number',
-                first_name: 'String',
-                last_name: 'String',
-                email: 'String',
-                password: 'String',
-                birthday: 'String'
+    usersControllers.updateUser(id, {first_name,last_name,email,password,birthday})
+        .then((data)=>{
+            if(data){
+                res.status(200).json({message: 'User modified succesfully'})
+            }
+            else{
+                res.status(404).json({message: 'Invalid ID'})
             }
         })
-    }
+        .catch((error)=> res.status(400).json({message: error.message}))
 }
 
 const deleteUserService = (req, res) => {
     id = req.params.id
     const data = usersControllers.deleteUser(id)
-    if (data) {
-        res.status(200).json(data)
-    }
-    else {
-        res.status(404).json({ message: 'Invalid ID' })
-    }
+        .then((data)=>{
+            if(data === 1){
+                res.status(200).json({message: 'User deleted'})
+            }
+            else{
+                res.status(404).json({message: 'Invalid ID'})
+            }
+
+        })
+        .catch((error)=>{
+            res.status(400).json({message: error.message})
+        })
+    // if (data) {
+    //     res.status(200).json(data)
+    // }
+    // else {
+    //     res.status(404).json({ message: 'Invalid ID' })
+    // }
 }
 
 module.exports = {

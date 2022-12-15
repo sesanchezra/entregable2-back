@@ -1,3 +1,5 @@
+const Users = require('../models/users.model')
+
 const usersDB = [
     {
         id: 1,
@@ -30,74 +32,62 @@ let id = 3
 */
 
 //Obtener todos los usuarios
-const findAllUsers = () => {
-    return usersDB
+const findAllUsers = async() => {
+    const data = await Users.findAll()
+    return data
 }
 
 //Obtener usuario por id
-const findUserById = (id) => {
-    const filterUser = usersDB.find(user => user.id == id)
+const findUserById = async(id) => {
+
+    // const filterUser = await Users.findByPk(id)    --- Por primary key
+
+    const filterUser = await Users.findOne({
+        where: {
+            id: id
+        }
+    })
     return filterUser
 }
 
 //Crear un usuario
-const createUser = (data) => {
-    const newUser = {
-        id: id++,
+const createUser = async (data) => {
+    const newUser = await Users.create({
         first_name: data.first_name,
         last_name: data.last_name,
         email: data.email,
         password: data.password,
         birthday: data.birthday
-    }
-    usersDB.push(newUser)
+    })
     return newUser
 }
 
 //Actualizar un usuario
 
-const updateUser = (data) => {
-    const filterUser = usersDB.find(user => user.id === data.id)
-
-    if (filterUser) {
-        const updateUser = {
-            id: data.id,
-            first_name: data.first_name,
-            last_name: data.last_name,
-            email: data.email,
-            password: data.password,
-            birthday: data.birthday
+const updateUser = async (id,obj) => {
+    const data = await Users.update(obj,{
+        where:{
+            id: id
         }
-        usersDB.find((user, index) => {
-            if (user.id === id) {
-                usersDB.splice(index, 1, updateUser)
-            }
-        })
+    })
 
-        return updateUser
-    }
-    else {
-        return filterUser
-    }
+    return data[0]  //Por que data puede ser [1], y puede ser [0]; el primer caso si se modifica algo, el segundo si no se modifica nada
 }
 
 
 //Borrar un usuarios
 
-const deleteUser = (id) =>{
-    const filterUser = usersDB.find(user => user.id === id)
+const deleteUser = async(id) =>{
 
-    if(filterUser){
-        usersDB.find((user,index) => {
-            if(user.id=== id){
-                usersDB.splice(index,1)
-            }
-        })
-        return usersDB
-    }
-    else{
-        return filterUser
-    }
+    const data = await Users.destroy({
+        where:{
+            id:id
+        }
+    })
+
+    return data  //Retorna 1 en caso de que se elimine, y 0 en caso de que el id no exista
+
+    
 }
 
 module.exports={
